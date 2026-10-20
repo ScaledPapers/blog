@@ -44,7 +44,7 @@ Do not “fix” timeout, DNS, or refused with expected status. There is no code
 
 A lookup that returns an address, while the page still fails, is a later layer. Walk the port, the certificate, and the status in [DNS works, the site does not](/blog/dns-works-the-site-does-not).
 
-A 301 to a parked page that finally returns 200 is the dangerous 3xx: redirects on, expected 200, origin gone. A 503 with a friendly HTML body is still down.
+A 301 to a parked page that finally returns 200 is the dangerous 3xx: redirects on, expected 200, origin gone. A chain that comes back to a URL it already returned is [Too many redirects](/blog/too-many-redirects). A 503 with a friendly HTML body is still down.
 
 ## When 200 is the outage
 

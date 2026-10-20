@@ -53,7 +53,7 @@ nc -vz example.com 443
 curl -sI --max-time 15 https://example.com/
 ```
 
-- **Response headers come back.** TLS worked. The status code on the first line is step 4.
+- **Response headers come back.** TLS worked. The status code on the first line is step 4. If the same URL appears twice in those headers, stop. That loop is [Too many redirects](/blog/too-many-redirects).
 - **The command stops with a certificate error.** Expired, unknown authority, or the name on the certificate does not match the host. The lookup pointed at a machine whose certificate is not valid for this site. A browser that loads the page only after a warning is not up.
 
 Do not add `-k` and treat a success as the fix. `-k` tells curl to ignore the certificate. It hides the failure you just found.
