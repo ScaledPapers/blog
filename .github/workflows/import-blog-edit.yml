@@ -9,6 +9,16 @@ jobs:
     if: github.event.review.state == 'approved'
     runs-on: ubuntu-latest
     steps:
+      - name: Require the import token
+        id: token
+        env:
+          BLOG_IMPORT_TOKEN: ${{ secrets.BLOG_IMPORT_TOKEN }}
+        run: |
+          if [ -z "$BLOG_IMPORT_TOKEN" ]; then
+            echo "BLOG_IMPORT_TOKEN is not set. An approved edit cannot open a product pull request until that secret exists."
+            exit 1
+          fi
+
       - uses: actions/checkout@v4
         with:
           repository: nsakenov/scaledpapers
