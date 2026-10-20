@@ -1,0 +1,31 @@
+name: Import approved edit
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  import:
+    if: github.event.review.state == 'approved'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: nsakenov/scaledpapers
+          token: ${{ secrets.BLOG_IMPORT_TOKEN }}
+          ref: master
+          path: product
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: edit
+
+      - name: Open the product pull request
+        working-directory: product
+        env:
+          GH_TOKEN: ${{ secrets.BLOG_IMPORT_TOKEN }}
+          PUBLIC_PR: ${{ github.event.pull_request.number }}
+          WORKDIR: ${{ github.workspace }}/product
+          EDIT_DIR: ${{ github.workspace }}/edit
+        run: node scripts/import-blog-edit.mjs
