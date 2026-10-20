@@ -8,14 +8,14 @@ HTTP status is a number on the wire. Up is a judgment. Treat every 4xx as down a
 
 That is why ScaledPapers does not use one rule for every URL.
 
-Website checks (and the free [website down checker](/website-down-checker)): any HTTP status below 500 is up. API checks: exact match, default 200. Set this on [Add a check](/docs/checks) or with `expected_status_codes` on the [Checks API](/docs/api).
+Website checks (and the free [website down checker](/website-down-checker/)): any HTTP status below 500 is up. API checks: exact match, default 200. Set this on [Add a check](/docs/checks/) or with `expected_status_codes` on the [Checks API](/docs/api/).
 
 ## Codes
 
 | Code | Means | Website | API |
 | --- | --- | --- | --- |
 | Timeout | No response in time. Often one path, not a global outage. | Down | Down |
-| DNS failure | Name did not resolve. HTTP never ran. Use a [DNS check](/docs/checks) if you need to split “name” from “server.” | Down | Down |
+| DNS failure | Name did not resolve. HTTP never ran. Use a [DNS check](/docs/checks/) if you need to split “name” from “server.” | Down | Down |
 | Connection refused | Nothing accepted the port. | Down | Down |
 | 200 OK | Handler succeeded. Body may still be `{"ok": false}`. | Up | Up (default) |
 | 201 Created | POST created a resource. Never 200. Do not create a row every minute unless you mean to. | Up | List it |
@@ -37,14 +37,14 @@ Website checks (and the free [website down checker](/website-down-checker)): any
 | 429 Too Many Requests | You are probing too often, or a gateway is throttling. | Up | Slow the interval |
 | 500 Internal Server Error | Origin handler crashed. | Down | Down |
 | 502 Bad Gateway | Proxy got a bad upstream (CDN, load balancer, nginx). | Down | Down |
-| 503 Service Unavailable | Overload, crashed workers, or planned maintenance. | Down | Down — or [schedule maintenance](/docs/maintenance) |
+| 503 Service Unavailable | Overload, crashed workers, or planned maintenance. | Down | Down — or [schedule maintenance](/docs/maintenance/) |
 | 504 Gateway Timeout | Proxy waited for upstream and gave up. One-region 504 is often a path, not a dead origin. | Down | Down |
 
 Do not “fix” timeout, DNS, or refused with expected status. There is no code.
 
-A lookup that returns an address, while the page still fails, is a later layer. Walk the port, the certificate, and the status in [DNS works, the site does not](/blog/dns-works-the-site-does-not). A 502 on one path while the homepage is 200 is [Only some pages return 502](/blog/only-some-pages-return-502).
+A lookup that returns an address, while the page still fails, is a later layer. Walk the port, the certificate, and the status in [DNS works, the site does not](/blog/dns-works-the-site-does-not/). A 502 on one path while the homepage is 200 is [Only some pages return 502](/blog/only-some-pages-return-502/).
 
-A 301 to a parked page that finally returns 200 is the dangerous 3xx: redirects on, expected 200, origin gone. A chain that comes back to a URL it already returned is [Too many redirects](/blog/too-many-redirects). A 503 with a friendly HTML body is still down.
+A 301 to a parked page that finally returns 200 is the dangerous 3xx: redirects on, expected 200, origin gone. A chain that comes back to a URL it already returned is [Too many redirects](/blog/too-many-redirects/). A 503 with a friendly HTML body is still down.
 
 ## When 200 is the outage
 

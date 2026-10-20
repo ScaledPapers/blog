@@ -31,7 +31,7 @@ Those cities match the landing checker. Latency will always be higher from the f
 
 ## How to read a split result
 
-- **Every city fails** — treat it as origin or DNS. Walk those two apart in [DNS works, the site does not](/blog/dns-works-the-site-does-not). The site is down for everyone we can see.
+- **Every city fails** — treat it as origin or DNS. Walk those two apart in [DNS works, the site does not](/blog/dns-works-the-site-does-not/). The site is down for everyone we can see.
 - **One continent is red, the others are fine** — regional routing, a CDN POP, or an anycast hole. Customers in that region are the ones who will file tickets.
 - **One city fails** — local to that path. Worth a second look, not an all-hands page.
 
