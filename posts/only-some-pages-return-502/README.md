@@ -1,13 +1,13 @@
 ---
 title: Only some pages return 502
-description: "The homepage is 200 and one path is 502. Compare the two responses and stop. The proxy is up. That path's upstream is not."
+description: "Curl a URL that works and one that fails. Read both status lines. When the homepage is 200 and one path is 502, the proxy answered and that path's upstream did not."
 date: "2026-10-20"
 validated: "2026-10-20"
 ---
 
-The homepage loads. Checkout, or one API route, returns 502. The name resolved, the port opened, and the certificate was accepted. Restarting the whole server skips the only fact you have.
+The homepage loads. Checkout, or one API route, shows 502 Bad Gateway. The name resolved, the port opened, and the certificate was accepted. Compare two URLs before you restart anything.
 
-## 1. Curl the page that works and the page that does not
+## 1. Curl the URL that works and the URL that fails
 
 Run both from the machine where you are debugging. Use the path customers actually opened.
 
@@ -16,25 +16,28 @@ curl -sI --max-time 20 https://example.com/
 curl -sI --max-time 20 https://example.com/checkout
 ```
 
-Read the two status lines before you open a process manager.
+The first command is the page that still loads. The second is the one that fails in the browser.
 
-- **Both are 502, or either command fails before a status line.** This is not a one-path failure. Walk the name, the port, and the certificate in [DNS works, the site does not](/blog/dns-works-the-site-does-not/).
-- **The homepage is 200 and the other URL is 502.** DNS, the port, and TLS worked for this host. The proxy in front answered. The next hop for that path did not. Stop looking at the domain.
-- **Both are 200, and the browser still shows 502.** `curl` sent no cookies. The failure is attached to the browser's request. Stop before restarting the app.
-- **The other URL is 404.** You asked for a path the server does not have. That is not a 502. A missing page is up on a Website check, as [When 403 means up](/blog/when-403-means-up/) lists it.
+Read both status lines before you open a process manager or change DNS.
 
-A 301 to add a trailing slash is a hop, not a bad gateway. Follow it, then read the status of the URL you land on. A chain that repeats a URL is [Too many redirects](/blog/too-many-redirects/).
+- **Either command exits before a status line.** Connection refused, timeout, or a certificate error means the problem is below HTTP for that request. Walk the name, the port, and the certificate in [DNS works, the site does not](/blog/dns-works-the-site-does-not/).
+- **Both status lines are 502.** Every path you tried failed the same way from here. That is a whole-host failure from this client, not “one path only.” Use the same DNS post.
+- **The homepage is 200 and the other URL is 502.** DNS, the port, and TLS worked for this host. The proxy in front answered on both requests. Only the backend for that path failed. Section 2 is where you stop.
+- **The other URL is 404.** The server answered and said the path is missing. That is not a bad gateway. A missing page can still count as up on a Website check; see [When 403 means up](/blog/when-403-means-up/).
+- **Both status lines are 200, and the browser still shows 502.** `curl` sent no cookies or session. The failure is tied to what the browser sends. Reproduce with the same cookies before you restart the app.
 
-## 2. Name the hop that failed
+A **301** or **302** is a redirect, not a 502. Follow it with `curl -sI -L --max-redirs 8`, or run `curl` on the final URL, then read that status line. If a URL appears twice in the chain, stop in [Too many redirects](/blog/too-many-redirects/).
 
-On the 502 response, the `Server` header is the proxy that gave up: Cloudflare, nginx, a load balancer. A 502 means that proxy did not get a valid response from the process behind this path.
+## 2. Read the 502 response
 
-The homepage's 200 means that proxy is running. Restarting it does not start the upstream this path uses. The fix is the process, the timeout, or the route that only this path is sent to.
+On the 502 response, the `Server` header names the proxy that gave up: Cloudflare, nginx, a load balancer. **502** means that proxy did not get a valid response from the process behind this path.
 
-A 504 is the same split with a different ending: the proxy waited and gave up. The homepage still proves the proxy itself answered.
+The homepage **200** means that proxy is running. Restarting the proxy does not start the upstream that only this route uses. Look at the app process, the timeout, or the route rule that sends this path to a different backend.
 
-## 3. Check the URL that failed
+**504** is the sibling failure: the proxy waited and gave up on a slow upstream. The homepage still shows the proxy itself is up. If only one path is 504, compare those two URLs in [Only some pages return 504](/blog/only-some-pages-return-504/).
 
-A check on `/` stays green through this outage. Add a Website or API check on the path that returned 502. 502 is down for both. What each code means is in [When 403 means up](/blog/when-403-means-up/), and the form is [Add a check](/docs/checks/).
+## 3. Monitor the path that failed
+
+A check on `/` can stay green while `/checkout` returns 502. Add a Website or API check on the URL that returned 502. **502** is down for Website and API checks. Status-code rules are in [When 403 means up](/blog/when-403-means-up/); the form is [Add a check](/docs/checks/).
 
 Leave the confirmation period at three failures. One 502 is stored. It does not open an incident.
