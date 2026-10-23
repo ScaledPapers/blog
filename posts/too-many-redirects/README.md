@@ -18,6 +18,8 @@ curl -sI -L --max-redirs 8 --max-time 20 http://example.com/
 
 The first command is one response. The second follows up to eight hops and prints each status line.
 
+The same chain is on the [redirect checker](/tools/redirect-checker/). It follows up to ten hops and shows the status, the time, and the headers on each one.
+
 Read the `Location` header and the status lines before you clear a cookie or open a host panel.
 
 - **A URL appears twice.** That pair is the loop. The later hops are the same two rules repeating. Fix those two. Do not keep reading.
